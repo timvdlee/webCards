@@ -20,7 +20,7 @@ Web application for generating print-ready PDF cards from images. **Runs entirel
 
 ### Option 1: Online (Hosted)
 
-Visit the hosted version: **https://example.com/cards**
+Visit the hosted version: **https://tlee.nl/webCards**
 
 ### Option 2: Local File Access
 
