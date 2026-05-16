@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Card PDF Generator</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <!-- jsPDF library - using direct UMD build -->
+    <script src="https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📇 Card PDF Generator</h1>
+            <p class="subtitle">Create print-ready PDF cards from images</p>
+        </header>
+
+        <main>
+            <!-- Upload Section -->
+            <section class="section" id="upload-section">
+                <h2>Step 1: Upload Card Images</h2>
+                
+                <div class="upload-group">
+                    <div class="upload-box">
+                        <label for="front-images-input">Front Card Images</label>
+                        <input type="file" id="front-images-input" multiple accept=".jpg,.jpeg,.png" />
+                        <p class="help-text">Select one or more PNG/JPG images for card fronts</p>
+                    </div>
+                    
+                    <div class="upload-box">
+                        <label for="back-images-input">Back Card Images (Optional)</label>
+                        <input type="file" id="back-images-input" multiple accept=".jpg,.jpeg,.png" />
+                        <p class="help-text">Leave empty if you only want front cards, or upload one image to use for all back cards</p>
+                    </div>
+                </div>
+
+                <!-- Image List with Print Counts -->
+                <div id="images-container" class="images-container" style="display: none;">
+                    <h3>Uploaded Images</h3>
+                    <div id="images-list" class="images-list"></div>
+                    <div class="image-stats">
+                        <p><strong>Total Cards to Print:</strong> <span id="total-cards">0</span></p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Configuration Section -->
+            <section class="section" id="config-section" style="display: none;">
+                <h2>Step 2: Configure PDF Layout</h2>
+                
+                <div class="config-grid">
+                    <!-- Paper & Dimensions -->
+                    <div class="config-group">
+                        <h3>Paper Settings</h3>
+                        
+                        <div class="form-group">
+                            <label for="paper-size-select">Paper Size</label>
+                            <select id="paper-size-select">
+                                <option value="A4">A4 (210×297 mm)</option>
+                                <option value="Letter">Letter (8.5×11 in)</option>
+                                <option value="custom">Custom</option>
+                            </select>
+                        </div>
+
+                        <div id="custom-paper-group" style="display: none;">
+                            <div class="form-group">
+                                <label for="custom-width">Paper Width (mm)</label>
+                                <input type="number" id="custom-width" value="210" min="50" max="500" />
+                            </div>
+                            <div class="form-group">
+                                <label for="custom-height">Paper Height (mm)</label>
+                                <input type="number" id="custom-height" value="297" min="50" max="500" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card Grid -->
+                    <div class="config-group">
+                        <h3>Card Grid</h3>
+                        
+                        <div class="form-group">
+                            <label for="columns">Columns</label>
+                            <input type="number" id="columns" value="4" min="1" max="10" />
+                        </div>
+                        <div class="form-group">
+                            <label for="rows">Rows</label>
+                            <input type="number" id="rows" value="7" min="1" max="10" />
+                        </div>
+                    </div>
+
+                    <!-- Padding -->
+                    <div class="config-group">
+                        <h3>Margins & Spacing</h3>
+                        
+                        <div class="form-group">
+                            <label for="horizontal-padding">Horizontal Spacing (mm)</label>
+                            <input type="number" id="horizontal-padding" value="12.35" min="0" step="0.1" />
+                        </div>
+                        <div class="form-group">
+                            <label for="vertical-padding">Vertical Spacing (mm)</label>
+                            <input type="number" id="vertical-padding" value="6.75" min="0" step="0.1" />
+                        </div>
+                    </div>
+
+                    <!-- Back Cards -->
+                    <div class="config-group">
+                        <h3>Back Cards (Optional)</h3>
+                        
+                        <div class="form-group checkbox">
+                            <input type="checkbox" id="generate-backs" />
+                            <label for="generate-backs">Include back cards in PDF</label>
+                        </div>
+                        <p class="help-text" id="back-cards-info" style="display: none;">Back cards will be automatically reversed (horizontal flip) and alternated with front cards</p>
+                    </div>
+
+                    <!-- Guide Lines -->
+                    <div class="config-group">
+                        <h3>Print Guides</h3>
+                        
+                        <div class="form-group checkbox">
+                            <input type="checkbox" id="guides-enabled" checked />
+                            <label for="guides-enabled">Include cutting guides</label>
+                        </div>
+                        <p class="help-text">Guide lines mark the cut lanes between cards</p>
+                    </div>
+                </div>
+
+                <!-- Calculated Dimensions Preview -->
+                <div class="preview-box">
+                    <h3>Calculated Dimensions</h3>
+                    <div id="dimensions-preview" class="dimensions-preview">
+                        <p><strong>Paper Size:</strong> <span id="preview-paper">210×297 mm</span></p>
+                        <p><strong>Card Size:</strong> <span id="preview-card-size">48.5×37.9 mm</span></p>
+                        <p><strong>Cards per Page:</strong> <span id="preview-cards-per-page">28</span></p>
+                        <p><strong>Total Pages:</strong> <span id="preview-total-pages">0</span></p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Generation Section -->
+            <section class="section" id="generation-section" style="display: none;">
+                <h2>Step 3: Generate PDF</h2>
+                
+                <div class="generation-controls">
+                    <button id="generate-button" class="btn btn-primary btn-large">
+                        🖨️ Generate PDF
+                    </button>
+                </div>
+
+                <div id="message-container" class="message-container"></div>
+            </section>
+        </main>
+
+        <footer>
+            <p>All processing happens locally in your browser. No server required.</p>
+            <a href="https://github.com/YOUR_REPO_URL_HERE" target="_blank" class="github-link" aria-label="View on GitHub" title="View on GitHub">
+                <svg class="github-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
+                </svg>
+            </a>
+        </footer>
+    </div>
+
+    <!-- JavaScript Modules -->
+    <script src="js/utilities.js"></script>
+    <script src="js/imageManager.js"></script>
+    <script src="js/pdfGenerator.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
