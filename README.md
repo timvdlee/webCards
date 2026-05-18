@@ -111,21 +111,16 @@ Visit the hosted version: **https://tlee.nl/webCards**
 ## 📚 File Structure
 
 ```
-web_app/
-├── index.html              # Main HTML file
-├── css/
-│   └── styles.css          # Styling (modern, responsive)
-├── js/
-│   ├── utilities.js        # Helper functions
-│   ├── imageManager.js     # Image upload & management
-│   ├── pdfGenerator.js     # PDF generation (mirrors Python logic)
-│   └── app.js              # Main application controller
-└── README.md               # This file
+index.html              # Main HTML file
+css/
+└── styles.css          # Styling (modern, responsive)
+js/
+├── utilities.js        # Helper functions
+├── imageManager.js     # Image upload & management
+├── pdfGenerator.js     # PDF generation (mirrors Python logic)
+└── app.js              # Main application controller
+README.md               # This file
 ```
-
-
-This project is an AI-assisted rewrite of the original Python project.
 
 ---
 
-**Happy card printing! 🎨📇**
